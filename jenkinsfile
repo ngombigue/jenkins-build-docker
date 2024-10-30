@@ -1,36 +1,30 @@
 pipeline {
-    agent {
-        docker {
-            image 'nginx:latest'
-            args '-p 8082:80'
-        }
-    }
+    agent any  // Vous pouvez utiliser n'importe quel agent, ou spécifier un agent Docker ici
     stages {
         stage('Clone') {
             steps {
-                checkout scm
+                checkout scm  // Vérifiez le code source depuis votre SCM
             }
         }
         stage('Build image') {
             steps {
                 script {
-                    app = docker.build("ngom/nginx")
+                    // Créez l'image Docker à partir du Dockerfile dans votre repository
+                    def app = docker.build("ngom/nginx")
                 }
             }
         }
         stage('Run image') {
             steps {
                 script {
+                    // Exécutez l'image construite
                     app.withRun('-p 8082:80') { c ->
-                        sh 'docker ps'
-                        sh 'curl localhost:8082'
+                        sh 'docker ps'  // Liste les conteneurs en cours d'exécution
+                        sh 'curl http://localhost:8082'  // Effectue une requête vers le conteneur
                     }
                 }
             }
         }
     }
 }
-
-                
-
 
