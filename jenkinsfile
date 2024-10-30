@@ -1,0 +1,20 @@
+node {
+    def app
+
+    stage('Clone') {
+        checkout scm
+    }
+
+    stage('Build image') {
+        app = docker.build("ngom/nginx")
+    }
+
+    stage('Run image') {
+        app.withRun('-p 8082:80') { c ->
+            sh 'docker ps'
+            sh 'curl localhost:8082'
+        }
+    }
+}
+
+~                
