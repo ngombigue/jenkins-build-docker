@@ -1,18 +1,32 @@
-node {
-    def app
-
-    stage('Clone') {
-        checkout scm
+pipeline {
+    agent {
+        docker {
+            image 'nginx:latest'
+            args '-p 8082:80'
+        }
     }
-
-    stage('Build image') {
-        app = docker.build("ngom/nginx")
-    }
-
-    stage('Run image') {
-        app.withRun('-p 8082:80') { c ->
-            sh 'docker ps'
-            sh 'curl localhost:8082'
+    stages {
+        stage('Clone') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Build image') {
+            steps {
+                script {
+                    app = docker.build("ngom/nginx")
+                }
+            }
+        }
+        stage('Run image') {
+            steps {
+                script {
+                    app.withRun('-p 8082:80') { c ->
+                        sh 'docker ps'
+                        sh 'curl localhost:8082'
+                    }
+                }
+            }
         }
     }
 }
