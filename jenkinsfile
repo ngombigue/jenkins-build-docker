@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'nginx:latest'
-            args '-p 8082:80'
-        }
-    }
+    agent any
     stages {
         stage('Clone') {
             steps {
@@ -14,17 +9,25 @@ pipeline {
         stage('Build image') {
             steps {
                 script {
-                    dockerImage = docker.build("ngom/nginx")
+                    // Construire l'image Docker
+                    sh 'docker build -t ngom/nginx .'
                 }
             }
         }
         stage('Run image') {
             steps {
                 script {
-                    dockerImage.withRun('-p 8082:80') { c ->
-                        sh 'docker ps'
-                        sh 'curl localhost:8082'
-                    }
+                    // Lancer le conteneur basé sur l'image créée
+                    sh 'docker run -d -p 8082:80 ngom/nginx'
+                }
+            }
+        }
+        stage('Test Container') {
+            steps {
+                script {
+                    // Vérifier si le conteneur tourne et envoyer une requête
+                    sh 'docker ps'
+                    sh 'curl http://localhost:8082'
                 }
             }
         }
